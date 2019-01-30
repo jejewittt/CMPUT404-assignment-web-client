@@ -80,6 +80,7 @@ class HTTPClient(object):
         print (7)
         payload = """GET / HTTP/1.1\r\nHOST: {}\r\n\r\n""".format(url)
         print(url)
+        
         # self.connect("www.google.com",80)
         # print("ad")
         print(urllib.parse.urlsplit(url)[1].split(':')[1])
