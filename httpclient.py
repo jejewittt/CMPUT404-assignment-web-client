@@ -84,7 +84,7 @@ class HTTPClient(object):
         # self.connect("www.google.com",80)
         # print("ad")
         print(urllib.parse.urlsplit(url)[1].split(':')[1])
-        self.connect(url,int(urllib.parse.urlsplit(url)[1].split(':')[1]) )
+        self.connect(urllib.parse.urlsplit(url)[1].split(':')[0],int(urllib.parse.urlsplit(url)[1].split(':')[1]) )
         test = print("yelp")
         print(test)
         self.s.shutdown(socket.SHUT_WR)
