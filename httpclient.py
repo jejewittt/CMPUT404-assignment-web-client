@@ -81,8 +81,8 @@ class HTTPClient(object):
         payload = """GET / HTTP/1.1\r\nHOST: {}\r\n\r\n""".format(url)
         print(url)
         
-        # self.connect("www.google.com",80)
-        # print("ad")
+        self.connect("www.google.com",80)
+        print("ad")
         print(urllib.parse.urlsplit(url)[1].split(':')[1])
         self.connect(url,int(urllib.parse.urlsplit(url)[1].split(':')[1]) )
         test = print("yelp")
