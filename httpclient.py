@@ -22,7 +22,10 @@ import sys
 import socket
 import re
 # you may use urllib to encode data appropriately
-import urllib.parse
+import urllib.parse 
+
+
+
 
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
@@ -41,22 +44,28 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
+        print(1)
         return None
 
     def get_headers(self,data):
+        print(2)
         return None
 
     def get_body(self, data):
+        print(3)
         return None
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
+        print(4)
         
     def close(self):
         self.socket.close()
+        print(5)
 
     # read everything from the socket
     def recvall(self, sock):
+        print(6)
         buffer = bytearray()
         done = False
         while not done:
@@ -68,21 +77,71 @@ class HTTPClient(object):
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
+        print (7)
+        payload = """GET / HTTP/1.1\r\nHOST: {}\r\n\r\n""".format(url)
+        print(url)
+        self.connect("www.google.com",80)
+        print("ad")
+        print(urllib.parse.urlsplit(url)[1].split(':')[1])
+        self.connect(url,0 )
+        test = print("yelp")
+        print(test)
+        self.s.shutdown(socket.SHUT_WR)
+        self.s.close()
+        # addr_info = socket.getaddrinfo(HOST, PORT)
+        # print("yes")
+        # addr = None
+        # for addr in addr_info:
+        #     if family  == socket.AF_INET and socktype == socket.SOCK_STREAM:
+        #         break 
+
+        # try:
+        #     s = socket.socket(family,socktype,proto) #good to put into try accept
+        #     s.connect(sockaddr)
+        #     s.sendall(payload.encode())
+        #     s.shutdown(socket.SHUT_WR)
+        #     full_data = b""
+        #     while True:
+        #         data = s.recv(BUFFER_SIZE)
+        #         if not data: break
+        #         full_data+= data
+        #     print(full_data)
+        # except Exception as e:
+        #     print(e)
+        #     print("error")
+        # finally:
+        #     s.close()
+
+
+        print("this came through ok")
+
+
+
         code = 500
-        body = ""
+        body = "this was good"
         return HTTPResponse(code, body)
 
+
+
+
+
+
+
+
+
     def POST(self, url, args=None):
+        print(8)
         code = 500
         body = ""
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
+        print(9)
         if (command == "POST"):
             return self.POST( url, args )
         else:
             return self.GET( url, args )
-    
+
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
