@@ -22,8 +22,8 @@ import sys
 import socket
 import re
 # you may use urllib to encode data appropriately
-import urllib.parse 
-
+import urllib
+import json
 
 
 
@@ -44,28 +44,49 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        print(1)
-        return None
+        response = None
+        print(data)
+        response = data.split()[1]
+        return int(response)
 
     def get_headers(self,data):
-        print(2)
-        return None
+        response = None 
+        return response
 
     def get_body(self, data):
-        print(3)
-        return None
+        # print(3)
+        # print(len(data))
+        # print(data)
+        # print("-----------------------------------")
+        c=False
+        old1=None
+        old2=None
+        response = ""
+        for i in data:
+            if (old1 == '\r' or old2=='\r') and i=='\r':
+                c=True
+            if c:
+                response+=i
+            else:   
+                old2=old1          
+                old1=i
+                
+
+        return response
     
+    # def encode_arg(self,data):
+    #     data = data.replace("\n","%20")
+    #     return data
     def sendall(self, data):
+        print(888)
+        print(data)
         self.socket.sendall(data.encode('utf-8'))
-        print(4)
         
     def close(self):
         self.socket.close()
-        print(5)
 
     # read everything from the socket
     def recvall(self, sock):
-        print(6)
         buffer = bytearray()
         done = False
         while not done:
@@ -78,62 +99,87 @@ class HTTPClient(object):
 
     def GET(self, url, args=None):
         print (7)
-        payload = """GET / HTTP/1.1\r\nHOST: {}\r\n\r\n""".format(url)
-        print(url)
-        
-        # self.connect("www.google.com",80)
-        # print("ad")
-        print(urllib.parse.urlsplit(url)[1].split(':')[1])
-        self.connect(urllib.parse.urlsplit(url)[1].split(':')[0],int(urllib.parse.urlsplit(url)[1].split(':')[1]) )
-        test = print("yelp")
-        print(test)
-        self.s.shutdown(socket.SHUT_WR)
-        self.s.close()
-        # addr_info = socket.getaddrinfo(HOST, PORT)
-        # print("yes")
-        # addr = None
-        # for addr in addr_info:
-        #     if family  == socket.AF_INET and socktype == socket.SOCK_STREAM:
-        #         break 
+        # print(args)
+        try:
+            int(urllib.parse.urlsplit(url)[1].split(':')[1])     
+            payload = """GET {} HTTP/1.1\r\nHOST: {}\r\n\r\n """.format(urllib.parse.urlsplit(url)[2],url)
+            print(111)
+            print(url)
 
-        # try:
-        #     s = socket.socket(family,socktype,proto) #good to put into try accept
-        #     s.connect(sockaddr)
-        #     s.sendall(payload.encode())
-        #     s.shutdown(socket.SHUT_WR)
-        #     full_data = b""
-        #     while True:
-        #         data = s.recv(BUFFER_SIZE)
-        #         if not data: break
-        #         full_data+= data
-        #     print(full_data)
-        # except Exception as e:
-        #     print(e)
-        #     print("error")
-        # finally:
-        #     s.close()
+            # print(urllib.parse.urlsplit(url)[1].split(':')[1])
+            self.connect(urllib.parse.urlsplit(url)[1].split(':')[0],int(urllib.parse.urlsplit(url)[1].split(':')[1]) )
+            self.sendall(payload)
+            response = self.recvall(self.socket)
+            print(222)
+            print(response)
+            code = self.get_code(response)
+            # print(code)
+            body = self.get_body(response)
+            print(333)
+            print(body)
+            self.close()
+            return HTTPResponse(code, body)
+        except IndexError:
+            print (7)
+            # print(args)
+            payload = """GET {} HTTP/1.1\r\nHOST: {} \r\nConnection: close\r\nAccept: */*\r\n\r\n """.format(url,urllib.parse.urlsplit(url)[1].split(':')[0])
+            print(111)
+            # print(url)
+            print(payload)
+            # print(urllib.parse.urlsplit(url)[1].split(':')[1])
+            print(urllib.parse.urlsplit(url)[1].split(':')[0])
+            self.connect(urllib.parse.urlsplit(url)[1].split(':')[0],80)
+            # self.connect(urllib.parse.urlsplit(url)[1].split(':')[0],int(urllib.parse.urlsplit(url)[1].split(':')[1]) )
+            
 
 
-        print("this came through ok")
-
-
-
-        code = 500
-        body = "this was good"
-        return HTTPResponse(code, body)
-
-
-
-
-
-
-
-
+            self.sendall(payload)
+            response = self.recvall(self.socket)
+            # print(222)
+            # print(response)
+            code = self.get_code(response)
+            # print(code)
+            body = self.get_body(response)
+            # print(333)
+            # print(body)
+            self.close()
+            return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
         print(8)
-        code = 500
-        body = ""
+        # print("-----------------------------------")
+        # print(url)
+        # print(args)
+        leng = 0
+        test=None
+        if args:
+            leng=0
+        goto=urllib.parse.urlsplit(url)[2]
+        if args:
+            test = ""
+            for i in args:
+                test+= i + "="+args[i]+'&'
+            test = test[:-1]
+        # if args:
+        #     test= json.dumps(test)
+        # print(234234)
+        # print(urllib.parse.quote(test,safe=''))
+        if test:
+            leng = len(test)
+        # print(url)
+        payload = """POST {} HTTP/1.1\r\nHOST: {} \r\nContent-Length: {} \r\n\r\n{}""".format(goto,url,leng,test)
+        # print(urllib.parse.urlsplit(url)[1].split(':'))
+        self.connect(urllib.parse.urlsplit(url)[1].split(':')[0],int(urllib.parse.urlsplit(url)[1].split(':')[1]))
+        self.sendall(payload)
+        response = self.recvall(self.socket)
+        # print(response)
+        code = self.get_code(response)
+        body = self.get_body(response)
+        # print("aawdawdawdawd")
+        # print("-----------response---------------")
+        # print(body)
+        # print("--------------------------")
+
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
